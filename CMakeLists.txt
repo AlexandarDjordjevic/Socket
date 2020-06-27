@@ -14,7 +14,7 @@ set(Include
     include/Network/Socket.hpp
 )
 
-add_library(${this} STATIC ${Src})
+add_library(${this} STATIC ${Src} ${Include})
 
 set_target_properties(${this} PROPERTIES
     FOLDER Libraries

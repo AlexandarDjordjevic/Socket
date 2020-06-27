@@ -1,6 +1,6 @@
-# Sockets
+# Socket
 
-The Sockets library provides the foundations of encapsulating in C++ classes the POSIX Sockets. The purpose of this library is to simplify POSIX socket usage.
+The Socket library provides the foundations of encapsulating in C++ classes the POSIX Sockets. The purpose of this library is to simplify POSIX socket usage.
 
 ## Supported platforms / recommended toolchains
 
