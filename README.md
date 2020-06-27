@@ -29,3 +29,22 @@ Compiling, linking, etc., using CMake-compatible toolchain
 
 CMake version 3.8 or newer
 C++11 toolchain compatible with CMake for your development platform
+
+## Project tree
+
+---
+
+```
+Sockets
+├─ .gitignore
+├─ CMakeLists.txt
+├─ LICENSE
+├─ README.md
+├─ Test
+├─ include
+│  └─ Network
+│     └─ Socket.hpp
+└─ src
+   └─ Socket.cpp
+
+```
