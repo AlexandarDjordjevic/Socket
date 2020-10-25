@@ -156,8 +156,10 @@ namespace Network
         struct sockaddr_in cli;
         socklen_t len = 0;
         client->pimpl->fileDescriptor = ::accept(pimpl->fileDescriptor, (struct sockaddr *)&cli, &len);
+        if (-1 == client->pimpl->fileDescriptor) return false;
         client->pimpl->address = ntohl(cli.sin_addr.s_addr);
         client->pimpl->port = ntohs(cli.sin_port);
+        return true;
     }
 
     bool Socket::write(const uint8_t *data, size_t length)
