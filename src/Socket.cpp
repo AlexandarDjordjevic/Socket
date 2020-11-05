@@ -7,7 +7,13 @@ namespace Network
     {
         int fileDescriptor;
         uint32_t address;
+#ifdef __linux__ 
         in_port_t port;
+#elif _WIN32
+
+#else
+    #error Unsupported OS
+#endif
         Socket::Domain domain;
         Socket::Type type;
     };
@@ -40,17 +46,29 @@ namespace Network
 
     bool Socket::create()
     {
+#ifdef __linux__ 
         pimpl->fileDescriptor = socket(int(pimpl->domain), int(pimpl->type), 0);
         if (pimpl->fileDescriptor < 0)
             return false;
         return true;
+#elif _WIN32
+
+#else
+    #error Unsupported OS
+#endif
     }
 
     bool Socket::create(Domain domain, Type type)
     {
+#ifdef __linux__ 
         pimpl->domain = domain;
         pimpl->type = type;
         return create();
+#elif _WIN32
+
+#else
+    #error Unsupported OS
+#endif
     }
 
     void Socket::setPort(uint16_t port)
@@ -64,16 +82,23 @@ namespace Network
     }
 
     bool Socket::connect(const std::string &address, uint16_t port)
-    {
+    {     
+#ifdef __linux__ 
         if (pimpl->fileDescriptor < 0)
             return false;
         struct sockaddr_in serv_addr;
         inet_pton(int(pimpl->domain), address.c_str(), &serv_addr.sin_addr);
         return connect(ntohl(serv_addr.sin_addr.s_addr), port);
+#elif _WIN32
+
+#else
+    #error Unsupported OS
+#endif        
     }
 
     bool Socket::connect(uint32_t address, uint16_t port)
     {
+#ifdef __linux__ 
         if (pimpl->fileDescriptor < 0)
             return false;
         struct sockaddr_in serv_addr;
@@ -87,10 +112,16 @@ namespace Network
             return false;
         }
         return true;
+#elif _WIN32
+
+#else
+    #error Unsupported OS
+#endif
     }
 
     bool Socket::bind(const std::string &address, uint16_t port)
     {
+#ifdef __linux__ 
         if (pimpl->fileDescriptor < 0)
             return false;
         struct sockaddr_in serv_addr;
@@ -105,35 +136,59 @@ namespace Network
         if (result < 0)
             return false;
         return true;
+#elif _WIN32
+
+#else
+    #error Unsupported OS
+#endif        
     }
 
     bool Socket::bind(uint16_t port)
     {
+#ifdef __linux__ 
         return bind(ANY_ADDRES, port);
+#elif _WIN32
+
+#else
+    #error Unsupported OS
+#endif
     }
 
     bool Socket::listen()
     {
+#ifdef __linux__ 
         if (pimpl->fileDescriptor < 0)
             return false;
         auto result = ::listen(pimpl->fileDescriptor, DEFAULT_CONNECTION_QUEUE_SIZE);
         if (result < 0)
             return false;
         return true;
+#elif _WIN32
+
+#else
+    #error Unsupported OS
+#endif
     }
 
     bool Socket::listen(size_t backlog)
     {
+#ifdef __linux__ 
         if (pimpl->fileDescriptor < 0)
             return false;
         auto result = ::listen(pimpl->fileDescriptor, backlog);
         if (result < 0)
             return false;
         return true;
+#elif _WIN32
+
+#else
+    #error Unsupported OS
+#endif
     }
 
     bool Socket::setBlockingMode(bool blocking)
     {
+#ifdef __linux__ 
         if (pimpl->fileDescriptor == -1)
             return false;
         int flags = fcntl(pimpl->fileDescriptor, F_GETFL, 0);
@@ -144,15 +199,27 @@ namespace Network
         else
             flags |= O_NONBLOCK;
         return (fcntl(pimpl->fileDescriptor, F_SETFL, flags) == 0) ? true : false;
+#elif _WIN32
+
+#else
+    #error Unsupported OS
+#endif
     }
 
     int Socket::accept()
     {
+#ifdef __linux__ 
         return ::accept(pimpl->fileDescriptor, NULL, NULL);
+#elif _WIN32
+
+#else
+    #error Unsupported OS
+#endif
     }
 
     bool Socket::accept(Socket *client)
     {
+#ifdef __linux__ 
         struct sockaddr_in cli;
         socklen_t len = 0;
         client->pimpl->fileDescriptor = ::accept(pimpl->fileDescriptor, (struct sockaddr *)&cli, &len);
@@ -160,16 +227,27 @@ namespace Network
         client->pimpl->address = ntohl(cli.sin_addr.s_addr);
         client->pimpl->port = ntohs(cli.sin_port);
         return true;
+#elif _WIN32
+
+#else
+    #error Unsupported OS
+#endif
     }
 
     bool Socket::write(const uint8_t *data, size_t length)
     {
+#ifdef __linux__ 
         if (pimpl->fileDescriptor < 0)
             return false;
         auto result = ::write(pimpl->fileDescriptor, data, length);
         if (result == -1)
             return false;
         return true;
+#elif _WIN32
+
+#else
+    #error Unsupported OS
+#endif
     }
 
     bool Socket::write(const std::string &data)
@@ -179,11 +257,18 @@ namespace Network
 
     size_t Socket::read(uint8_t *buffer, const size_t length)
     {
+#ifdef __linux__
         return ::read(pimpl->fileDescriptor, buffer, length);
+#elif _WIN32
+
+#else
+    #error Unsupported OS
+#endif
     }
 
     size_t Socket::receiveFrom(uint8_t *buffer, const size_t length, Socket *client)
     {
+#ifdef __linux__ 
         struct sockaddr_in cli;
         socklen_t len = 0;
         auto received_len = ::recvfrom(pimpl->fileDescriptor, buffer, length, 0, (struct sockaddr *)&cli, &len);
@@ -193,6 +278,11 @@ namespace Network
             client->pimpl->port = cli.sin_port;
         }
         return received_len;
+#elif _WIN32
+
+#else
+    #error Unsupported OS
+#endif
     }
 
     int Socket::getDescriptor() const
@@ -202,6 +292,7 @@ namespace Network
 
     std::string Socket::getIp()
     {
+#ifdef __linux__ 
         char str[INET_ADDRSTRLEN] = {0};
         try
         {
@@ -214,6 +305,11 @@ namespace Network
         {
             return nullptr;
         }
+#elif _WIN32
+
+#else
+    #error Unsupported OS
+#endif
     }
 
     uint32_t Socket::getIpNumeric()
@@ -223,11 +319,23 @@ namespace Network
 
     void Socket::shutdown()
     {
+#ifdef __linux__ 
         ::shutdown(pimpl->fileDescriptor, SHUT_RDWR);
+#elif _WIN32
+
+#else
+    #error Unsupported OS
+#endif
     }
 
     void Socket::close()
     {
+#ifdef __linux__ 
         ::close(pimpl->fileDescriptor);
+#elif _WIN32
+
+#else
+    #error Unsupported OS
+#endif
     }
 } // namespace Network

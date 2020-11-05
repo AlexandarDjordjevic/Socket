@@ -1,15 +1,22 @@
 #pragma once
 
+#include <memory>
+#include <stdint.h>
+#include <stddef.h>
+#include <string>
+
+#ifdef __linux__ 
 #include <arpa/inet.h>
 #include <fcntl.h>
-#include <memory>
 #include <netinet/in.h>
-#include <stddef.h>
-#include <stdint.h>
-#include <string>
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <unistd.h>
+#elif _WIN32
+
+#else
+    #error Unsupported OS
+#endif
 
 #define DEFAULT_CONNECTION_QUEUE_SIZE 10
 namespace Network {
